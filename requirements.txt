@@ -1,0 +1,13 @@
+torch
+torchvision
+torchaudio
+numpy
+pillow
+matplotlib
+scikit-learn
+plotly
+streamlit
+opencv-python-headless
+reportlab
+langchain
+faiss-cpu

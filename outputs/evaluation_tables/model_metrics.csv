@@ -1,0 +1,3 @@
+Model,Accuracy,Precision,Recall,F1,Specificity,AUC,AvgConfidence,TP,FN,FP,TN,Notes
+CNN,95.45,91.51,99.58,95.37,91.79,0.0,95.45,237,1,22,246,AUC not provided; AvgConfidence placeholder uses Accuracy. Replace with actual mean prediction confidence if available.
+ResNet18,98.61,100.0,97.05,98.5,100.0,99.82,98.61,230,7,0,268,AUC taken from ROC curve image; AvgConfidence placeholder uses Accuracy. Replace with actual mean prediction confidence if available.

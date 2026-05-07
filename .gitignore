@@ -1,0 +1,7 @@
+venv/
+myenv/
+__pycache__/
+*.pyc
+data/
+app/generated_reports/*.pdf
+outputs/generated_images/
