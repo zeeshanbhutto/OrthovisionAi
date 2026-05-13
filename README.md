@@ -437,8 +437,7 @@ This application is developed for academic research and educational demonstratio
 
 ## Author
 
-**Muhammad Saleem Ul Haq**  
-Final Year Project: OrthoVision AI  
+**Zeeshan Bhutto**    
 AI-Powered Bone Fracture Detection and Explainability System
 
 ---
