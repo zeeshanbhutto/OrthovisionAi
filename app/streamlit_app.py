@@ -18,6 +18,27 @@ st.set_page_config(
     layout="wide",
 )
 
+query_params = st.query_params
+
+if query_params.get("report_id"):
+    st.markdown("## ✅ AI Report Verification")
+    st.success("Report verification opened successfully.")
+
+    st.write("**Report ID:**", query_params.get("report_id"))
+    st.write("**Patient/Image ID:**", query_params.get("patient_id"))
+    st.write("**Body Region:**", query_params.get("body_region"))
+    st.write("**Model:**", query_params.get("model"))
+    st.write("**Prediction:**", query_params.get("prediction"))
+    st.write("**Confidence:**", query_params.get("confidence"), "%")
+    st.write("**Risk Level:**", query_params.get("risk"))
+
+    st.info(
+        "This verification page is generated from the AI-assisted report QR code. "
+        "Final diagnosis must be reviewed by a qualified medical professional."
+    )
+
+    st.divider()
+    
 apply_custom_style()
 
 st.markdown(
@@ -124,3 +145,4 @@ with right:
     )
 
 st.info("Use the left sidebar to open the AI Scan Room and start the live fracture detection demo.")
+

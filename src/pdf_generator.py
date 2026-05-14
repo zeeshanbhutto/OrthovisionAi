@@ -1,6 +1,8 @@
 from pathlib import Path
 from datetime import datetime
+import tempfile
 
+import qrcode
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import inch
@@ -25,9 +27,49 @@ def generate_ai_report(
     risk_level,
     original_image_path=None,
     gradcam_image_path=None,
+    doctor_feedback=None,
+    doctor_notes=None,
+    report_id=None,
+    qr_payload=None,
 ):
+    """
+    Generate an AI-assisted fracture screening PDF report.
+
+    QR Code:
+    - If qr_payload is provided, that text/URL will be encoded.
+    - If qr_payload is not provided, a report summary will be encoded automatically.
+
+    Doctor Review:
+    - doctor_feedback can be: Agree / Disagree / Needs Review / Not reviewed
+    - doctor_notes can contain supervisor/doctor notes.
+    """
+
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report_time = datetime.now().strftime("%d-%m-%Y %I:%M %p")
+
+    if report_id is None:
+        report_id = f"ORT-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+    try:
+        confidence_value = float(confidence)
+    except (TypeError, ValueError):
+        confidence_value = 0.0
+
+    if qr_payload is None:
+        qr_payload = (
+            f"OrthoVision AI Report\n"
+            f"Report ID: {report_id}\n"
+            f"Patient/Image ID: {patient_id}\n"
+            f"Body Region: {body_region}\n"
+            f"Model Used: {model_name}\n"
+            f"Prediction: {prediction}\n"
+            f"Confidence: {confidence_value:.2f}%\n"
+            f"Risk Level: {risk_level}\n"
+            f"Doctor Feedback: {doctor_feedback or 'Not reviewed'}\n"
+            f"Generated On: {report_time}"
+        )
 
     doc = SimpleDocTemplate(
         str(output_path),
@@ -69,14 +111,13 @@ def generate_ai_report(
     story.append(Paragraph("AI-Assisted Bone Fracture Screening Report", heading_style))
     story.append(Spacer(1, 12))
 
-    report_time = datetime.now().strftime("%d-%m-%Y %I:%M %p")
-
     summary_data = [
+        ["Report ID", report_id],
         ["Patient / Image ID", patient_id],
         ["Body Region", body_region],
         ["Model Used", model_name],
-        ["Prediction", prediction.upper()],
-        ["Confidence Score", f"{confidence:.2f}%"],
+        ["Prediction", str(prediction).upper()],
+        ["Confidence Score", f"{confidence_value:.2f}%"],
         ["Risk Level", risk_level],
         ["Report Generated On", report_time],
     ]
@@ -84,6 +125,7 @@ def generate_ai_report(
     table = Table(summary_data, colWidths=[2.2 * inch, 3.8 * inch])
     table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#E0F2FE")),
+        ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
         ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
         ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
         ("PADDING", (0, 0), (-1, -1), 8),
@@ -95,7 +137,7 @@ def generate_ai_report(
 
     story.append(Paragraph("AI Interpretation", heading_style))
 
-    if prediction.lower() == "fractured":
+    if str(prediction).lower() == "fractured":
         interpretation = (
             "The AI model has detected signs that may indicate a bone fracture. "
             "The Grad-CAM visualization highlights the regions that contributed most "
@@ -114,12 +156,20 @@ def generate_ai_report(
     image_table_data = []
 
     if original_image_path and Path(original_image_path).exists():
-        img = ReportImage(str(original_image_path), width=2.4 * inch, height=2.4 * inch)
-        image_table_data.append([Paragraph("<b>Original X-ray</b>", normal_style), img])
+        original_img = ReportImage(
+            str(original_image_path),
+            width=2.4 * inch,
+            height=2.4 * inch,
+        )
+        image_table_data.append([Paragraph("<b>Original X-ray</b>", normal_style), original_img])
 
     if gradcam_image_path and Path(gradcam_image_path).exists():
-        img = ReportImage(str(gradcam_image_path), width=2.4 * inch, height=2.4 * inch)
-        image_table_data.append([Paragraph("<b>Grad-CAM Overlay</b>", normal_style), img])
+        gradcam_img = ReportImage(
+            str(gradcam_image_path),
+            width=2.4 * inch,
+            height=2.4 * inch,
+        )
+        image_table_data.append([Paragraph("<b>Grad-CAM Overlay</b>", normal_style), gradcam_img])
 
     if image_table_data:
         story.append(Paragraph("Visual Evidence", heading_style))
@@ -133,6 +183,65 @@ def generate_ai_report(
 
         story.append(image_table)
         story.append(Spacer(1, 16))
+
+    story.append(Paragraph("Doctor Review", heading_style))
+
+    doctor_review_data = [
+        ["Doctor Feedback", doctor_feedback or "Not reviewed"],
+        ["Doctor Notes", doctor_notes or "No notes added."],
+    ]
+
+    doctor_table = Table(doctor_review_data, colWidths=[2.2 * inch, 3.8 * inch])
+    doctor_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#F0FDF4")),
+        ("TEXTCOLOR", (0, 0), (-1, -1), colors.black),
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("FONTNAME", (0, 0), (0, -1), "Helvetica-Bold"),
+        ("PADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+
+    story.append(doctor_table)
+    story.append(Spacer(1, 16))
+
+    qr = qrcode.QRCode(
+        version=1,
+        error_correction=qrcode.constants.ERROR_CORRECT_H,
+        box_size=8,
+        border=4,
+    )
+    qr.add_data(qr_payload)
+    qr.make(fit=True)
+
+    qr_img = qr.make_image(fill_color="black", back_color="white")
+
+    temp_qr_path = Path(tempfile.gettempdir()) / f"{report_id}_qr.png"
+    qr_img.save(temp_qr_path)
+
+    story.append(Paragraph("Report Verification QR Code", heading_style))
+
+    qr_table = Table(
+        [
+            [
+                ReportImage(str(temp_qr_path), width=1.5 * inch, height=1.5 * inch),
+                Paragraph(
+                    "Scan this QR code to view the AI report summary and verification details. "
+                    "This QR code is generated for educational and research demonstration purposes.",
+                    normal_style,
+                ),
+            ]
+        ],
+        colWidths=[1.8 * inch, 4.2 * inch],
+    )
+
+    qr_table.setStyle(TableStyle([
+        ("GRID", (0, 0), (-1, -1), 0.5, colors.grey),
+        ("PADDING", (0, 0), (-1, -1), 8),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+    ]))
+
+    story.append(qr_table)
+    story.append(Spacer(1, 16))
 
     story.append(Paragraph("Medical Disclaimer", heading_style))
     story.append(Paragraph(

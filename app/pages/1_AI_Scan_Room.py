@@ -1,7 +1,9 @@
 from datetime import datetime
 from pathlib import Path
+import csv
 import re
 import sys
+from urllib.parse import urlencode
 
 import streamlit as st
 from PIL import Image
@@ -15,6 +17,13 @@ sys.path.append(str(APP_DIR))
 from components.ui_styles import apply_custom_style
 from src.predict import FracturePredictor
 from src.pdf_generator import generate_ai_report
+
+
+# IMPORTANT:
+# Use your deployed Streamlit base URL here.
+# I converted your shared /Model_Performance link into the app base URL,
+# because QR verification should open the main app with query parameters.
+APP_BASE_URL = "https://orthovisionai-7qcmmcpxyudjc4ntut8d3s.streamlit.app"
 
 
 st.set_page_config(
@@ -37,6 +46,76 @@ def clean_filename(value):
     return value or "case"
 
 
+def build_report_verification_url(
+    report_id,
+    patient_id,
+    body_region,
+    model_name,
+    prediction,
+    confidence,
+    risk_level,
+):
+    query_string = urlencode({
+        "report_id": report_id,
+        "patient_id": patient_id,
+        "body_region": body_region,
+        "model": model_name,
+        "prediction": prediction,
+        "confidence": f"{confidence:.2f}",
+        "risk": risk_level,
+    })
+
+    return f"{APP_BASE_URL}/?{query_string}"
+
+
+def save_doctor_feedback(
+    report_id,
+    patient_id,
+    body_region,
+    model_name,
+    prediction,
+    confidence,
+    risk_level,
+    doctor_feedback,
+    doctor_notes,
+):
+    feedback_dir = APP_DIR / "feedback"
+    feedback_dir.mkdir(parents=True, exist_ok=True)
+
+    feedback_file = feedback_dir / "doctor_feedback.csv"
+    file_exists = feedback_file.exists()
+
+    with open(feedback_file, mode="a", newline="", encoding="utf-8") as file:
+        writer = csv.writer(file)
+
+        if not file_exists:
+            writer.writerow([
+                "timestamp",
+                "report_id",
+                "patient_id",
+                "body_region",
+                "model_name",
+                "ai_prediction",
+                "confidence",
+                "risk_level",
+                "doctor_feedback",
+                "doctor_notes",
+            ])
+
+        writer.writerow([
+            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            report_id,
+            patient_id,
+            body_region,
+            model_name,
+            prediction,
+            f"{confidence:.2f}",
+            risk_level,
+            doctor_feedback,
+            doctor_notes,
+        ])
+
+
 predictor = load_predictor()
 
 st.markdown(
@@ -44,7 +123,7 @@ st.markdown(
     <div class="hero-card">
         <div class="hero-title">🩻 AI Scan Room</div>
         <div class="hero-subtitle">
-            Upload an X-ray image and generate fracture prediction, confidence score, risk level, Grad-CAM explanation, and PDF report.
+            Upload an X-ray image and generate fracture prediction, confidence score, risk level, Grad-CAM explanation, doctor review, and PDF report with QR verification.
         </div>
     </div>
     """,
@@ -77,7 +156,7 @@ with left_panel:
 
     analyze_button = st.button("Analyze X-ray")
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
 
     st.markdown(
         """
@@ -86,7 +165,8 @@ with left_panel:
             <p>1. Upload X-ray image</p>
             <p>2. Click Analyze X-ray</p>
             <p>3. Show prediction and Grad-CAM</p>
-            <p>4. Generate PDF report</p>
+            <p>4. Add doctor review feedback</p>
+            <p>5. Generate PDF report with QR code</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -107,9 +187,16 @@ with right_panel:
             with st.spinner("Analyzing X-ray image and generating Grad-CAM..."):
                 result = predictor.predict(image, generate_gradcam=True)
 
+            report_id = f"ORT-{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
             st.session_state["scan_result"] = result
             st.session_state["scan_image"] = image
             st.session_state["scan_uploaded_name"] = uploaded_file.name
+            st.session_state["scan_report_id"] = report_id
+
+            # Clear previous doctor feedback for a fresh case.
+            st.session_state.pop("doctor_feedback", None)
+            st.session_state.pop("doctor_notes", None)
 
         if "scan_result" in st.session_state:
             result = st.session_state["scan_result"]
@@ -118,6 +205,10 @@ with right_panel:
             prediction = result["prediction"]
             confidence = result["confidence"]
             risk_level = result["risk_level"]
+            report_id_value = st.session_state.get(
+                "scan_report_id",
+                f"ORT-{datetime.now().strftime('%Y%m%d%H%M%S')}",
+            )
 
             if prediction.lower() == "fractured":
                 result_class = "result-fractured"
@@ -150,6 +241,8 @@ with right_panel:
 
             with m3:
                 st.metric("Model Used", model_name)
+
+            st.caption(f"Report ID: {report_id_value}")
 
             st.markdown("### Visual Explanation")
 
@@ -192,7 +285,57 @@ with right_panel:
                     "However, the result should still be clinically verified by a qualified professional."
                 )
 
+            st.markdown("### 👨‍⚕️ Doctor Review Mode")
+
+            with st.form("doctor_feedback_form"):
+                selected_feedback = st.radio(
+                    "Do you agree with the AI prediction?",
+                    ["Agree", "Disagree", "Needs Review"],
+                    horizontal=True,
+                )
+
+                notes_value = st.text_area(
+                    "Doctor / Supervisor Notes",
+                    value=st.session_state.get("doctor_notes", ""),
+                    placeholder="Write clinical observation or review comment here...",
+                )
+
+                feedback_submitted = st.form_submit_button("Save Doctor Feedback")
+
+                if feedback_submitted:
+                    save_doctor_feedback(
+                        report_id=report_id_value,
+                        patient_id=patient_id,
+                        body_region=body_region,
+                        model_name=model_name,
+                        prediction=prediction,
+                        confidence=confidence,
+                        risk_level=risk_level,
+                        doctor_feedback=selected_feedback,
+                        doctor_notes=notes_value,
+                    )
+
+                    st.session_state["doctor_feedback"] = selected_feedback
+                    st.session_state["doctor_notes"] = notes_value
+
+                    st.success("Doctor feedback saved successfully.")
+
+            doctor_feedback_value = st.session_state.get("doctor_feedback", "Not reviewed")
+            doctor_notes_value = st.session_state.get("doctor_notes", "No doctor notes added.")
+
             st.markdown("### Generate AI Report")
+
+            verification_url = build_report_verification_url(
+                report_id=report_id_value,
+                patient_id=patient_id,
+                body_region=body_region,
+                model_name=model_name,
+                prediction=prediction,
+                confidence=confidence,
+                risk_level=risk_level,
+            )
+
+            st.caption(f"QR verification URL: {verification_url}")
 
             if st.button("Generate PDF Report"):
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -224,6 +367,10 @@ with right_panel:
                     risk_level=risk_level,
                     original_image_path=original_path,
                     gradcam_image_path=overlay_path,
+                    doctor_feedback=doctor_feedback_value,
+                    doctor_notes=doctor_notes_value,
+                    report_id=report_id_value,
+                    qr_payload=verification_url,
                 )
 
                 with open(final_report_path, "rb") as file:
@@ -234,6 +381,6 @@ with right_panel:
                         mime="application/pdf",
                     )
 
-                st.success("PDF report generated successfully.")
+                st.success("PDF report generated successfully. Scan the QR code in the PDF to open the online verification page.")
 
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)
