@@ -19,10 +19,7 @@ from src.predict import FracturePredictor
 from src.pdf_generator import generate_ai_report
 
 
-# IMPORTANT:
-# Use your deployed Streamlit base URL here.
-# I converted your shared /Model_Performance link into the app base URL,
-# because QR verification should open the main app with query parameters.
+# Deployed Streamlit base URL for QR report verification
 APP_BASE_URL = "https://orthovisionai-7qcmmcpxyudjc4ntut8d3s.streamlit.app"
 
 
@@ -54,6 +51,10 @@ def build_report_verification_url(
     prediction,
     confidence,
     risk_level,
+    doctor_name=None,
+    doctor_specialization=None,
+    doctor_shift=None,
+    doctor_review_time=None,
 ):
     query_string = urlencode({
         "report_id": report_id,
@@ -63,6 +64,10 @@ def build_report_verification_url(
         "prediction": prediction,
         "confidence": f"{confidence:.2f}",
         "risk": risk_level,
+        "doctor_name": doctor_name or "Not provided",
+        "doctor_specialization": doctor_specialization or "Not provided",
+        "doctor_shift": doctor_shift or "Not provided",
+        "doctor_review_time": doctor_review_time or "Not provided",
     })
 
     return f"{APP_BASE_URL}/?{query_string}"
@@ -78,6 +83,10 @@ def save_doctor_feedback(
     risk_level,
     doctor_feedback,
     doctor_notes,
+    doctor_name=None,
+    doctor_specialization=None,
+    doctor_shift=None,
+    doctor_review_time=None,
 ):
     feedback_dir = APP_DIR / "feedback"
     feedback_dir.mkdir(parents=True, exist_ok=True)
@@ -98,6 +107,10 @@ def save_doctor_feedback(
                 "ai_prediction",
                 "confidence",
                 "risk_level",
+                "doctor_name",
+                "doctor_specialization",
+                "doctor_shift",
+                "doctor_review_time",
                 "doctor_feedback",
                 "doctor_notes",
             ])
@@ -111,6 +124,10 @@ def save_doctor_feedback(
             prediction,
             f"{confidence:.2f}",
             risk_level,
+            doctor_name or "Not provided",
+            doctor_specialization or "Not provided",
+            doctor_shift or "Not provided",
+            doctor_review_time or datetime.now().strftime("%d-%m-%Y %I:%M %p"),
             doctor_feedback,
             doctor_notes,
         ])
@@ -165,8 +182,9 @@ with left_panel:
             <p>1. Upload X-ray image</p>
             <p>2. Click Analyze X-ray</p>
             <p>3. Show prediction and Grad-CAM</p>
-            <p>4. Add doctor review feedback</p>
-            <p>5. Generate PDF report with QR code</p>
+            <p>4. Add doctor name, specialization, shift, and review time</p>
+            <p>5. Save doctor review feedback</p>
+            <p>6. Generate PDF report with QR code</p>
         </div>
         """,
         unsafe_allow_html=True,
@@ -194,9 +212,13 @@ with right_panel:
             st.session_state["scan_uploaded_name"] = uploaded_file.name
             st.session_state["scan_report_id"] = report_id
 
-            # Clear previous doctor feedback for a fresh case.
+            # Clear previous doctor review values for a fresh case.
             st.session_state.pop("doctor_feedback", None)
             st.session_state.pop("doctor_notes", None)
+            st.session_state.pop("doctor_name", None)
+            st.session_state.pop("doctor_specialization", None)
+            st.session_state.pop("doctor_shift", None)
+            st.session_state.pop("doctor_review_time", None)
 
         if "scan_result" in st.session_state:
             result = st.session_state["scan_result"]
@@ -288,6 +310,35 @@ with right_panel:
             st.markdown("### 👨‍⚕️ Doctor Review Mode")
 
             with st.form("doctor_feedback_form"):
+                doctor_name = st.text_input(
+                    "Doctor Name",
+                    value=st.session_state.get("doctor_name", ""),
+                    placeholder="Example: Dr. Ahmed Khan",
+                )
+
+                doctor_specialization = st.selectbox(
+                    "Doctor Specialization",
+                    [
+                        "Orthopedic Specialist",
+                        "Radiologist",
+                        "Emergency Physician",
+                        "General Physician",
+                        "Medical Officer",
+                        "Supervisor / Examiner",
+                        "Other",
+                    ],
+                    index=0,
+                )
+
+                doctor_shift = st.selectbox(
+                    "Shift",
+                    ["Morning", "Evening", "Night", "On Call"],
+                    index=0,
+                )
+
+                doctor_review_time = datetime.now().strftime("%d-%m-%Y %I:%M %p")
+                st.info(f"Review Time: {doctor_review_time}")
+
                 selected_feedback = st.radio(
                     "Do you agree with the AI prediction?",
                     ["Agree", "Disagree", "Needs Review"],
@@ -313,13 +364,28 @@ with right_panel:
                         risk_level=risk_level,
                         doctor_feedback=selected_feedback,
                         doctor_notes=notes_value,
+                        doctor_name=doctor_name,
+                        doctor_specialization=doctor_specialization,
+                        doctor_shift=doctor_shift,
+                        doctor_review_time=doctor_review_time,
                     )
 
+                    st.session_state["doctor_name"] = doctor_name
+                    st.session_state["doctor_specialization"] = doctor_specialization
+                    st.session_state["doctor_shift"] = doctor_shift
+                    st.session_state["doctor_review_time"] = doctor_review_time
                     st.session_state["doctor_feedback"] = selected_feedback
                     st.session_state["doctor_notes"] = notes_value
 
                     st.success("Doctor feedback saved successfully.")
 
+            doctor_name_value = st.session_state.get("doctor_name", "Not provided")
+            doctor_specialization_value = st.session_state.get("doctor_specialization", "Not provided")
+            doctor_shift_value = st.session_state.get("doctor_shift", "Not provided")
+            doctor_review_time_value = st.session_state.get(
+                "doctor_review_time",
+                datetime.now().strftime("%d-%m-%Y %I:%M %p"),
+            )
             doctor_feedback_value = st.session_state.get("doctor_feedback", "Not reviewed")
             doctor_notes_value = st.session_state.get("doctor_notes", "No doctor notes added.")
 
@@ -333,6 +399,10 @@ with right_panel:
                 prediction=prediction,
                 confidence=confidence,
                 risk_level=risk_level,
+                doctor_name=doctor_name_value,
+                doctor_specialization=doctor_specialization_value,
+                doctor_shift=doctor_shift_value,
+                doctor_review_time=doctor_review_time_value,
             )
 
             st.caption(f"QR verification URL: {verification_url}")
@@ -369,6 +439,10 @@ with right_panel:
                     gradcam_image_path=overlay_path,
                     doctor_feedback=doctor_feedback_value,
                     doctor_notes=doctor_notes_value,
+                    doctor_name=doctor_name_value,
+                    doctor_specialization=doctor_specialization_value,
+                    doctor_shift=doctor_shift_value,
+                    doctor_review_time=doctor_review_time_value,
                     report_id=report_id_value,
                     qr_payload=verification_url,
                 )
@@ -381,6 +455,8 @@ with right_panel:
                         mime="application/pdf",
                     )
 
-                st.success("PDF report generated successfully. Scan the QR code in the PDF to open the online verification page.")
+                st.success(
+                    "PDF report generated successfully. Scan the QR code in the PDF to open the online verification page."
+                )
 
     st.markdown("</div>", unsafe_allow_html=True)

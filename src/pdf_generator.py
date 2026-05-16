@@ -29,6 +29,10 @@ def generate_ai_report(
     gradcam_image_path=None,
     doctor_feedback=None,
     doctor_notes=None,
+    doctor_name=None,
+    doctor_specialization=None,
+    doctor_shift=None,
+    doctor_review_time=None,
     report_id=None,
     qr_payload=None,
 ):
@@ -40,7 +44,11 @@ def generate_ai_report(
     - If qr_payload is not provided, a report summary will be encoded automatically.
 
     Doctor Review:
-    - doctor_feedback can be: Agree / Disagree / Needs Review / Not reviewed
+    - doctor_name stores the reviewing doctor / supervisor name.
+    - doctor_specialization stores the specialty such as Radiologist or Orthopedic Specialist.
+    - doctor_shift stores Morning / Evening / Night / On Call.
+    - doctor_review_time stores the exact review timestamp.
+    - doctor_feedback can be Agree / Disagree / Needs Review / Not reviewed.
     - doctor_notes can contain supervisor/doctor notes.
     """
 
@@ -67,6 +75,10 @@ def generate_ai_report(
             f"Prediction: {prediction}\n"
             f"Confidence: {confidence_value:.2f}%\n"
             f"Risk Level: {risk_level}\n"
+            f"Doctor: {doctor_name or 'Not provided'}\n"
+            f"Specialization: {doctor_specialization or 'Not provided'}\n"
+            f"Shift: {doctor_shift or 'Not provided'}\n"
+            f"Review Time: {doctor_review_time or 'Not provided'}\n"
             f"Doctor Feedback: {doctor_feedback or 'Not reviewed'}\n"
             f"Generated On: {report_time}"
         )
@@ -187,6 +199,10 @@ def generate_ai_report(
     story.append(Paragraph("Doctor Review", heading_style))
 
     doctor_review_data = [
+        ["Doctor Name", doctor_name or "Not provided"],
+        ["Specialization", doctor_specialization or "Not provided"],
+        ["Shift", doctor_shift or "Not provided"],
+        ["Review Time", doctor_review_time or "Not provided"],
         ["Doctor Feedback", doctor_feedback or "Not reviewed"],
         ["Doctor Notes", doctor_notes or "No notes added."],
     ]
