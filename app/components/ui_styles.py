@@ -2,6 +2,8 @@ import streamlit as st
 
 
 def apply_custom_style():
+    import streamlit as st
+
     st.markdown(
         """
         <style>
@@ -15,6 +17,102 @@ def apply_custom_style():
             padding-bottom: 2rem;
             max-width: 1250px;
         }
+
+        /* ===============================
+           DARK SIDEBAR / PAGES SECTION
+           =============================== */
+
+        [data-testid="stSidebar"] {
+            background: linear-gradient(180deg, #020617 0%, #07111f 45%, #0f172a 100%) !important;
+            border-right: 1px solid rgba(56, 189, 248, 0.25);
+            box-shadow: 8px 0 30px rgba(0, 0, 0, 0.35);
+        }
+
+        [data-testid="stSidebar"] * {
+            color: #E5E7EB !important;
+        }
+
+        [data-testid="stSidebarNav"] {
+            padding-top: 1rem;
+        }
+
+        [data-testid="stSidebarNav"] ul {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        [data-testid="stSidebarNav"] li {
+            margin-bottom: 0.35rem;
+        }
+
+        [data-testid="stSidebarNav"] a {
+            color: #CBD5E1 !important;
+            font-size: 16px !important;
+            font-weight: 700 !important;
+            padding: 0.75rem 1rem !important;
+            border-radius: 14px !important;
+            margin: 0.25rem 0 !important;
+            background: rgba(15, 23, 42, 0.75) !important;
+            border: 1px solid rgba(148, 163, 184, 0.16) !important;
+            transition: all 0.2s ease-in-out;
+        }
+
+        [data-testid="stSidebarNav"] a:hover {
+            background: rgba(14, 165, 233, 0.22) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(56, 189, 248, 0.45) !important;
+            transform: translateX(3px);
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"] {
+            background: linear-gradient(135deg, #0284C7, #06B6D4) !important;
+            color: #FFFFFF !important;
+            border: 1px solid rgba(125, 211, 252, 0.85) !important;
+            box-shadow: 0 8px 22px rgba(14, 165, 233, 0.35);
+        }
+
+        [data-testid="stSidebarNav"] a[aria-current="page"] span {
+            color: #FFFFFF !important;
+            font-weight: 900 !important;
+        }
+
+        [data-testid="stSidebar"] h1,
+        [data-testid="stSidebar"] h2,
+        [data-testid="stSidebar"] h3,
+        [data-testid="stSidebar"] p,
+        [data-testid="stSidebar"] span,
+        [data-testid="stSidebar"] label {
+            color: #E5E7EB !important;
+        }
+
+        [data-testid="stSidebar"] button {
+            color: #FFFFFF !important;
+            background: rgba(15, 23, 42, 0.85) !important;
+            border: 1px solid rgba(56, 189, 248, 0.35) !important;
+        }
+
+        [data-testid="collapsedControl"] {
+            color: #FFFFFF !important;
+            background: rgba(2, 6, 23, 0.9) !important;
+            border-radius: 12px !important;
+        }
+
+        /* Mobile sidebar improvement */
+        @media (max-width: 768px) {
+            [data-testid="stSidebar"] {
+                background: #020617 !important;
+                min-width: 285px !important;
+            }
+
+            [data-testid="stSidebarNav"] a {
+                font-size: 15px !important;
+                padding: 0.85rem 1rem !important;
+            }
+        }
+
+        /* ===============================
+           EXISTING CARDS / MAIN UI
+           =============================== */
 
         .hero-card {
             background: linear-gradient(135deg, rgba(19, 55, 92, 0.95), rgba(6, 17, 31, 0.98));
