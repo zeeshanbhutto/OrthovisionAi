@@ -16,6 +16,18 @@ from reportlab.platypus import (
 )
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
+def build_notes_paragraph(notes, style):
+    if not notes or str(notes).strip() == "":
+        return Paragraph("No notes added.", style)
+
+    lines = [line.strip() for line in str(notes).splitlines() if line.strip()]
+
+    if not lines:
+        return Paragraph("No notes added.", style)
+
+    bullet_html = "<br/>".join([f"• {line}" for line in lines])
+
+    return Paragraph(bullet_html, style)
 
 def generate_ai_report(
     output_path,
@@ -199,14 +211,13 @@ def generate_ai_report(
     story.append(Paragraph("Doctor Review", heading_style))
 
     doctor_review_data = [
-        ["Doctor Name", doctor_name or "Not provided"],
-        ["Specialization", doctor_specialization or "Not provided"],
-        ["Shift", doctor_shift or "Not provided"],
-        ["Review Time", doctor_review_time or "Not provided"],
-        ["Doctor Feedback", doctor_feedback or "Not reviewed"],
-        ["Doctor Notes", doctor_notes or "No notes added."],
-    ]
-
+    [Paragraph("<b>Doctor Name</b>", normal_style), Paragraph(doctor_name or "Not provided", normal_style)],
+    [Paragraph("<b>Specialization</b>", normal_style), Paragraph(doctor_specialization or "Not provided", normal_style)],
+    [Paragraph("<b>Shift</b>", normal_style), Paragraph(doctor_shift or "Not provided", normal_style)],
+    [Paragraph("<b>Review Time</b>", normal_style), Paragraph(doctor_review_time or "Not provided", normal_style)],
+    [Paragraph("<b>Doctor Feedback</b>", normal_style), Paragraph(doctor_feedback or "Not reviewed", normal_style)],
+    [Paragraph("<b>Doctor Notes</b>", normal_style), build_notes_paragraph(doctor_notes, normal_style)],
+]
     doctor_table = Table(doctor_review_data, colWidths=[2.2 * inch, 3.8 * inch])
     doctor_table.setStyle(TableStyle([
         ("BACKGROUND", (0, 0), (0, -1), colors.HexColor("#F0FDF4")),
