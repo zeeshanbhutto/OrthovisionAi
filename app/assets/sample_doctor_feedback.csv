@@ -1,0 +1,85 @@
+timestamp,report_id,patient_id,body_region,model_name,ai_prediction,confidence,risk_level,doctor_name,doctor_specialization,doctor_shift,doctor_review_time,doctor_feedback,doctor_notes
+2026-05-01 14:09:00,ORT-20260502711097,CASE-001,Elbow,ResNet18,fractured,72.87,Medium,Dr Ahmed Khan,Orthopedic Specialist,Morning,01-05-2026 02:09 PM,Disagree,"AI prediction does not fully match clinical review.
+Manual radiologist assessment is recommended.
+Case should be added to difficult-case review set."
+2026-05-02 17:13:00,ORT-20260503545140,CASE-002,Knee,ResNet18,fractured,83.82,Medium,Dr Ahmed Khan,Orthopedic Specialist,Morning,02-05-2026 05:13 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-02 10:14:00,ORT-20260504331821,CASE-003,Hand,ResNet18,not fractured,88.06,Low,Dr Fatima Noor,Emergency Physician,Morning,02-05-2026 10:14 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-03 17:54:00,ORT-20260505955770,CASE-004,Knee,ResNet18,fractured,83.4,Medium,Dr Rehan Ali,Medical Officer,Evening,03-05-2026 05:54 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-03 10:37:00,ORT-20260506162496,CASE-005,Knee,ResNet18,fractured,76.84,Medium,Dr Ahmed Khan,Orthopedic Specialist,Evening,03-05-2026 10:37 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-04 16:43:00,ORT-20260507414328,CASE-006,Elbow,ResNet18,fractured,93.57,High,Dr Fatima Noor,Emergency Physician,Evening,04-05-2026 04:43 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-04 11:44:00,ORT-20260508864878,CASE-007,Elbow,ResNet18,not fractured,73.82,Medium,Dr Fatima Noor,Emergency Physician,On Call,04-05-2026 11:44 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-05 13:38:00,ORT-20260509612714,CASE-008,Wrist,ResNet18,not fractured,74.85,Medium,Dr Rehan Ali,Medical Officer,On Call,05-05-2026 01:38 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-05 09:42:00,ORT-20260510829070,CASE-009,Elbow,ResNet18,fractured,87.35,Medium,Dr Rehan Ali,Medical Officer,Night,05-05-2026 09:42 AM,Disagree,"AI prediction does not fully match clinical review.
+Manual radiologist assessment is recommended.
+Case should be added to difficult-case review set."
+2026-05-06 16:37:00,ORT-20260511830901,CASE-010,Shoulder,ResNet18,not fractured,73.45,Medium,Dr Rehan Ali,Medical Officer,Morning,06-05-2026 04:37 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-06 09:46:00,ORT-20260512851438,CASE-011,Elbow,ResNet18,not fractured,89.88,Low,Dr Fatima Noor,Emergency Physician,On Call,06-05-2026 09:46 AM,Needs Review,"Image requires expert review.
+Model confidence or visual evidence should be interpreted carefully.
+Recommend second opinion before final decision."
+2026-05-07 14:01:00,ORT-20260513328807,CASE-012,Hand,ResNet18,not fractured,81.6,Low,Dr Fatima Noor,Emergency Physician,Night,07-05-2026 02:01 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-07 11:47:00,ORT-20260514571007,CASE-013,Wrist,ResNet18,fractured,82.6,Medium,Dr Ahmed Khan,Orthopedic Specialist,On Call,07-05-2026 11:47 AM,Needs Review,"Image requires expert review.
+Model confidence or visual evidence should be interpreted carefully.
+Recommend second opinion before final decision."
+2026-05-08 17:17:00,ORT-20260515535469,CASE-014,Leg,ResNet18,not fractured,94.77,Low,Dr Rehan Ali,Medical Officer,Night,08-05-2026 05:17 PM,Needs Review,"Image requires expert review.
+Model confidence or visual evidence should be interpreted carefully.
+Recommend second opinion before final decision."
+2026-05-08 15:14:00,ORT-20260516608520,CASE-015,Hand,ResNet18,fractured,76.5,Medium,Dr Sara Malik,Radiologist,Evening,08-05-2026 03:14 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-09 13:18:00,ORT-20260517824035,CASE-016,Wrist,ResNet18,fractured,83.4,Medium,Dr Rehan Ali,Medical Officer,Morning,09-05-2026 01:18 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-09 16:55:00,ORT-20260518518359,CASE-017,Shoulder,ResNet18,not fractured,96.34,Low,Dr Fatima Noor,Emergency Physician,On Call,09-05-2026 04:55 PM,Disagree,"AI prediction does not fully match clinical review.
+Manual radiologist assessment is recommended.
+Case should be added to difficult-case review set."
+2026-05-10 10:30:00,ORT-20260519270187,CASE-018,Shoulder,ResNet18,not fractured,73.27,Medium,Dr Sara Malik,Radiologist,Morning,10-05-2026 10:30 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-10 14:38:00,ORT-20260520743550,CASE-019,Elbow,ResNet18,fractured,71.51,Medium,Dr Ahmed Khan,Orthopedic Specialist,Morning,10-05-2026 02:38 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-11 10:55:00,ORT-20260521481853,CASE-020,Knee,ResNet18,fractured,82.18,Medium,Dr Rehan Ali,Medical Officer,On Call,11-05-2026 10:55 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-11 10:07:00,ORT-20260522190056,CASE-021,Elbow,ResNet18,not fractured,99.7,Low,Dr Fatima Noor,Emergency Physician,Evening,11-05-2026 10:07 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-12 10:47:00,ORT-20260523124217,CASE-022,Knee,ResNet18,fractured,79.02,Medium,Dr Sara Malik,Radiologist,Evening,12-05-2026 10:47 AM,Disagree,"AI prediction does not fully match clinical review.
+Manual radiologist assessment is recommended.
+Case should be added to difficult-case review set."
+2026-05-12 17:23:00,ORT-20260524195431,CASE-023,Leg,ResNet18,fractured,86.93,Medium,Dr Rehan Ali,Medical Officer,Night,12-05-2026 05:23 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-13 17:23:00,ORT-20260525333876,CASE-024,Leg,ResNet18,not fractured,81.6,Low,Dr Rehan Ali,Medical Officer,Evening,13-05-2026 05:23 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-13 12:52:00,ORT-20260526866513,CASE-025,Elbow,ResNet18,fractured,94.31,High,Dr Fatima Noor,Emergency Physician,Morning,13-05-2026 12:52 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-14 09:50:00,ORT-20260527947842,CASE-026,Shoulder,ResNet18,fractured,78.86,Medium,Dr Rehan Ali,Medical Officer,Night,14-05-2026 09:50 AM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-14 14:05:00,ORT-20260528754381,CASE-027,Shoulder,ResNet18,fractured,77.94,Medium,Dr Sara Malik,Radiologist,Morning,14-05-2026 02:05 PM,Agree,"AI prediction is consistent with visible X-ray pattern.
+Grad-CAM focus area is clinically relevant.
+Recommend routine clinical confirmation."
+2026-05-15 16:41:00,ORT-20260529920304,CASE-028,Shoulder,ResNet18,fractured,89.76,Medium,Dr Ahmed Khan,Orthopedic Specialist,Evening,15-05-2026 04:41 PM,Disagree,"AI prediction does not fully match clinical review.
+Manual radiologist assessment is recommended.
+Case should be added to difficult-case review set."
