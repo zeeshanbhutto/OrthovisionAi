@@ -19,6 +19,10 @@ class FracturePredictor:
 
         self.model_path = self._resolve_model_path(model_path)
 
+        # ImageFolder sorts classes alphabetically.
+        # Current project convention:
+        # index 0 = fractured
+        # index 1 = not fractured
         self.class_names = ["fractured", "not fractured"]
 
         self.transform = transforms.Compose([
@@ -37,10 +41,21 @@ class FracturePredictor:
         candidates = []
 
         if model_path:
-            candidates.append(Path(model_path))
+            user_path = Path(model_path)
+            if not user_path.is_absolute():
+                user_path = self.project_root / user_path
+            candidates.append(user_path)
 
         candidates.extend([
+            # Main trained model path used by the deployed app
             self.project_root / "resnet_fracture.pth",
+
+            # Common backup locations
+            self.project_root / "models" / "resnet_fracture.pth",
+            self.project_root / "models" / "classification" / "resnet_fracture.pth",
+            self.project_root / "models" / "best_model" / "resnet_fracture.pth",
+
+            # Older fallback names kept only for compatibility
             self.project_root / "models" / "classification" / "resnet18_model.pth",
             self.project_root / "models" / "best_model" / "best_classifier.pth",
         ])
@@ -49,13 +64,23 @@ class FracturePredictor:
             if path.exists():
                 return path
 
+        checked_paths = "\n".join(str(path) for path in candidates)
+
         raise FileNotFoundError(
-            "Model file not found. Put resnet_fracture.pth in project root "
-            "or update model_path in FracturePredictor."
+            "Model file not found. Expected resnet_fracture.pth in project root "
+            "or one of the known model folders.\n\nChecked paths:\n"
+            f"{checked_paths}"
         )
 
     def _load_model(self):
-        model = get_resnet_model()
+        # Important:
+        # pretrained=False prevents unnecessary ImageNet weight download during inference.
+        # The trained fracture checkpoint is loaded immediately after model creation.
+        model = get_resnet_model(
+            num_classes=2,
+            pretrained=False,
+            freeze_backbone=False
+        )
 
         checkpoint = torch.load(self.model_path, map_location=self.device)
 
@@ -73,6 +98,8 @@ class FracturePredictor:
     def _get_risk_level(self, prediction, confidence_percent):
         prediction = prediction.lower()
 
+        # Safety rule:
+        # A fractured prediction should not be marked as Low risk.
         if prediction == "fractured":
             if confidence_percent >= 80:
                 return "High"
@@ -85,7 +112,6 @@ class FracturePredictor:
 
     def predict(self, pil_image, generate_gradcam=True):
         image = pil_image.convert("RGB")
-
         original_224 = np.array(image.resize((224, 224)))
 
         input_tensor = self.transform(image).unsqueeze(0).to(self.device)
