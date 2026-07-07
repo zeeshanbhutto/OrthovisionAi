@@ -1,9 +1,72 @@
-venv/
-myenv/
+# -----------------------------
+# Python cache
+# -----------------------------
 __pycache__/
-*.pyc
-data/
-app/generated_reports/*.pdf
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# -----------------------------
+# Virtual environment
+# -----------------------------
+venv/
+.env/
+.env
+*.env
+
+# -----------------------------
+# IDE / OS files
+# -----------------------------
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# -----------------------------
+# Streamlit secrets
+# -----------------------------
+.streamlit/secrets.toml
+
+# -----------------------------
+# Dataset files
+# Full dataset should not be pushed to GitHub
+# -----------------------------
+data/*
+!data/.gitkeep
+
+# -----------------------------
+# Runtime doctor feedback
+# Keep sample feedback in app/assets, but ignore real runtime feedback
+# -----------------------------
+app/feedback/*
+!app/feedback/.gitkeep
+
+# -----------------------------
+# Generated PDF reports
+# -----------------------------
+app/generated_reports/*
+!app/generated_reports/.gitkeep
+
+# -----------------------------
+# Generated temporary outputs
+# -----------------------------
 outputs/generated_images/
-app/feedback/doctor_feedback.csv
-app/generated_reports/*.pdf
+outputs/data_leakage_report.csv
+project_tree.txt
+
+# -----------------------------
+# Local logs / temp files
+# -----------------------------
+*.log
+*.tmp
+*.bak
+
+# -----------------------------
+# Do NOT ignore these deployment files
+# resnet_fracture.pth is required for Streamlit Cloud deployment
+# model_metrics.csv is used by the performance dashboard
+# -----------------------------
